@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Ball - Ultimate Team</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+            user-select: none;
+        }
+
+        .card-square {
+            width: 130px;
+            height: 130px;
+            border-radius: 1rem;
+            padding: 0.6rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.6);
+            transition: all 0.25s ease;
+            overflow: hidden;
+        }
+        .card-square:hover {
+            transform: translateY(-4px) scale(1.04);
+            box-shadow: 0 12px 25px -4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Continuous shimmering sparkling animation overlay for ALL cards */
+        .card-square::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(
+                45deg,
+                transparent 35%,
+                rgba(255, 255, 255, 0.5) 50%,
+                transparent 65%
+            );
+            transform: rotate(35deg);
+            animation: cardContinuousSparkle 1.4s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes cardContinuousSparkle {
+            0% { transform: translateY(-120%) translateX(-120%) rotate(35deg); }
+            100% { transform: translateY(120%) translateX(120%) rotate(35deg); }
+        }
+
+        /* Tier Borders and Glows according to rating rules */
+        .card-tier-low {
+            background: linear-gradient(135deg, #15803d 0%, #166534 50%, #14532d 100%) !important;
+            border: 5px solid #fef08a !important;
+            box-shadow: 0 0 24px rgba(234, 179, 8, 0.9), inset 0 0 12px rgba(254, 240, 138, 0.5) !important;
+        }
+
+        .card-tier-mid {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0284c7 100%) !important;
+            border: 5px solid #f87171 !important;
+            box-shadow: 0 0 26px rgba(239, 68, 68, 0.8), inset 0 0 14px rgba(248, 113, 113, 0.5) !important;
+        }
+
+        .card-tier-high {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%) !important;
+            border: 5px solid #a855f7 !important;
+            box-shadow: 0 0 32px rgba(168, 85, 247, 1), inset 0 0 18px rgba(168, 85, 247, 0.7) !important;
+        }
+
+        /* Diagonal "Sai Vị Trí" Banner Overlay */
+        .wrong-position-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150%;
+            background: rgba(225, 29, 72, 0.95);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 900;
+            text-align: center;
+            padding: 4px 0;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+            border: 2px solid #fecdd3;
+            letter-spacing: 1px;
+            z-index: 40;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+
+        /* Diagonal "Vị Trí Đã Lắp" Banner Overlay */
+        .installed-position-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150%;
+            background: rgba(16, 185, 129, 0.95);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 900;
+            text-align: center;
+            padding: 4px 0;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+            border: 2px solid #a7f3d0;
+            letter-spacing: 1px;
+            z-index: 40;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+
+        /* Pack Animations */
+        .pack-glowing {
+            animation: packGlow 1.5s infinite alternate;
+        }
+        @keyframes packGlow {
+            0% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 15px rgba(59, 130, 246, 0.5); }
+            100% { box-shadow: 0 0 50px rgba(59, 130, 246, 0.9), inset 0 0 30px rgba(59, 130, 246, 0.9); }
+        }
+
+        .pack-epic-glowing {
+            animation: packEpicGlow 1.2s infinite alternate;
+        }
+        @keyframes packEpicGlow {
+            0% { box-shadow: 0 0 25px rgba(217, 70, 239, 0.6), inset 0 0 20px rgba(217, 70, 239, 0.6); }
+            100% { box-shadow: 0 0 60px rgba(217, 70, 239, 1), inset 0 0 35px rgba(217, 70, 239, 1); }
+        }
+
+        .reveal-anim-step {
+            animation: popInBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popInBounce {
+            0% { transform: scale(0.3); opacity: 0; }
+            70% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Status Dot Indicator */
+        .status-dot-active {
+            background-color: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+            animation: pulseActive 1.8s infinite;
+        }
+        .status-dot-inactive {
+            background-color: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+        }
+        @keyframes pulseActive {
+            0% { opacity: 0.7; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.7; transform: scale(0.95); }
+        }
+
+        /* Custom Scrollbar for Sleek Cup List Scrolling */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.5);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.8);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+
+    <header class="border-b border-slate-800 bg-slate-900/95 backdrop-blur-md sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-3">
+            
+            <div class="flex items-center space-x-3">
+                <div onclick="openClubNameModal()" class="relative cursor-pointer group" title="Bấm để đổi tên & logo CLB">
+                    <div id="headerClubLogoContainer" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 border border-cyan-400/50 flex items-center justify-center text-xl shadow-md overflow-hidden group-hover:scale-105 transition">
+                        <span id="headerClubLogoFallback">⚽</span>
+                        <img id="headerClubLogoImg" class="w-full h-full object-cover hidden" alt="Logo CLB">
+                    </div>
+                    <span class="absolute -bottom-1 -right-1 bg-cyan-500 text-slate-950 text-[8px] font-black px-1 rounded-full border border-slate-900">
+                        <i class="fa-solid fa-pen"></i>
+                    </span>
+                </div>
+
+                <div>
+                    <div onclick="openClubNameModal()" class="flex items-center space-x-1.5 cursor-pointer group">
+                        <h1 id="headerClubName" class="font-heading font-extrabold text-sm text-cyan-300 group-hover:text-white transition truncate max-w-[130px] md:max-w-[170px]">CLB Bóng Đá</h1>
+                        <i class="fa-solid fa-gear text-[10px] text-slate-400 group-hover:text-cyan-400"></i>
+                    </div>
+
+                    <div class="flex items-center space-x-2 text-[11px]">
+                        <div id="headerClubStatusBadge" class="flex items-center space-x-1 bg-slate-950/80 px-2 py-0.5 rounded-full border border-slate-800">
+                            <span id="headerClubStatusDot" class="w-2 h-2 rounded-full status-dot-active"></span>
+                            <span id="headerClubStatusText" class="font-bold text-[10px] text-emerald-400">Hoạt Động</span>
+                        </div>
+
+                        <div onclick="openFriendModal()" class="flex items-center space-x-1 text-slate-400 cursor-pointer hover:text-cyan-400 transition" title="Xem danh sách bạn bè">
+                            <span>Mã:</span>
+                            <span id="headerFriendCodeDisplay" class="text-cyan-400 font-mono font-bold">RB-******</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Bar -->
+            <nav class="flex items-center gap-1 bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 shadow-inner">
+                <button onclick="switchTab('roll')" id="nav-roll" class="px-3 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-600 text-white shadow-md flex items-center space-x-1.5">
+                    <i class="fa-solid fa-dice text-sm"></i><span>Mở Thẻ</span>
+                </button>
+                <button onclick="switchTab('market')" id="nav-market" class="px-3 py-1.5 rounded-xl text-xs font-bold transition bg-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-store text-sm"></i><span>Mua Thẻ 90+</span>
+                </button>
+                <button onclick="switchTab('pitch')" id="nav-pitch" class="px-3 py-1.5 rounded-xl text-xs font-bold transition bg-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-chess-board text-sm"></i><span>Sân & Đấu Cúp</span>
+                </button>
+                <button onclick="switchTab('inventory')" id="nav-inventory" class="px-3 py-1.5 rounded-xl text-xs font-bold transition bg-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-box-archive text-sm"></i><span>Kho Thẻ</span>
+                </button>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <div onclick="openAttendanceModal()" class="flex items-center space-x-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-amber-500/30 cursor-pointer hover:border-amber-400 transition group" title="Bấm để nhận quà Điểm Danh">
+                    <span class="text-amber-400 text-sm group-hover:scale-110 transition"><i class="fa-solid fa-coins"></i></span>
+                    <span id="statCoins" class="font-heading font-black text-xs text-amber-300">5,500</span>
+                </div>
+                
+                <div onclick="openCupModal()" class="flex items-center space-x-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-cyan-500/30 cursor-pointer hover:border-cyan-400 transition group" title="Bấm để xem Tủ 24 Cúp">
+                    <span class="text-amber-400 text-sm group-hover:scale-110 transition"><i class="fa-solid fa-trophy"></i></span>
+                    <span id="statTrophies" class="font-heading font-black text-xs text-cyan-300">0 Cúp</span>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- TAB 1: CARD ROLL / PACK OPENING -->
+        <section id="view-roll" class="space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-3xl mx-auto text-center space-y-6 shadow-2xl relative overflow-hidden">
+                <h2 class="font-heading text-xl font-bold text-white">Trung Tâm Mở Gói Thẻ Cầu Thủ</h2>
+                
+                <div class="flex justify-center gap-3">
+                    <button onclick="switchPackType('normal')" id="packBtnNormal" class="px-4 py-2 rounded-xl font-heading font-bold text-xs transition bg-cyan-600 text-white shadow-lg shadow-cyan-600/30">
+                        ⚽ Gói Thẻ Thường (Miễn Phí)
+                    </button>
+                    <button onclick="switchPackType('epic95')" id="packBtnEpic95" class="px-4 py-2 rounded-xl font-heading font-bold text-xs transition bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5">
+                        <span>🔥 Gói Thẻ Siêu Sao (15,000</span>
+                        <div class="w-4 h-4 rounded-full bg-amber-400/20 border border-amber-400 flex items-center justify-center text-[9px] text-amber-300">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <span>)</span>
+                    </button>
+                </div>
+
+                <div id="packContainer" class="relative py-4 flex flex-col items-center justify-center min-h-[380px]">
+                    
+                    <div id="packClosed" class="space-y-4 cursor-pointer group" onclick="openFCCardPack()">
+                        <div id="packBoxVisual" class="w-56 h-56 mx-auto bg-gradient-to-b from-blue-600 via-indigo-900 to-slate-950 rounded-3xl border-4 border-cyan-400 shadow-2xl flex flex-col items-center justify-between p-5 transform group-hover:scale-105 transition duration-300 relative overflow-hidden pack-glowing">
+                            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-400/20 via-transparent to-transparent"></div>
+                            <div id="packTitleLabel" class="text-cyan-300 font-heading text-[10px] uppercase tracking-widest font-black">Random Ball Pack</div>
+                            <div class="text-center space-y-1.5 z-10">
+                                <div id="packIconVisual" class="w-14 h-14 mx-auto bg-cyan-500/20 rounded-full flex items-center justify-center text-2xl border border-cyan-400 shadow-lg shadow-cyan-500/50">
+                                    ⚽
+                                </div>
+                                <h3 id="packSubtitleLabel" class="font-heading text-lg font-black text-white">Gói Cầu Thủ Vàng</h3>
+                                <p id="packPriceLabel" class="text-[11px] text-slate-300">Nhấn để mở gói thẻ ngay!</p>
+                            </div>
+                            <span id="packActionBtnText" class="bg-cyan-500 text-slate-950 font-black text-[11px] px-3.5 py-1.5 rounded-xl shadow-lg">MỞ GÓI NGAY</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Nation Reveal -->
+                    <div id="packNationReveal" class="hidden space-y-4 reveal-anim-step text-center">
+                        <div class="text-xs font-bold text-cyan-400 uppercase tracking-widest">Đang Xác Định Quốc Gia Cầu Thủ...</div>
+                        <div class="flex flex-col items-center justify-center space-y-2">
+                            <div id="revealNationNameText" class="font-heading text-4xl font-black text-emerald-400 tracking-wider drop-shadow-md">ARGENTINA</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Year Reveal -->
+                    <div id="packYearReveal" class="hidden space-y-4 reveal-anim-step">
+                        <div class="text-xs font-bold text-amber-400 uppercase tracking-widest">Năm Giải Đấu World Cup</div>
+                        <div id="revealYearText" class="font-heading text-5xl font-black text-white drop-shadow-lg">2022</div>
+                    </div>
+
+                    <!-- Step 3: Position Reveal -->
+                    <div id="packPositionReveal" class="hidden space-y-4 reveal-anim-step">
+                        <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Vị Trí Cầu Thủ</div>
+                        <div id="revealPositionText" class="font-heading text-5xl font-black text-cyan-300 drop-shadow-lg">ST</div>
+                    </div>
+
+                    <!-- Final Reveal: Complete Card with Dynamic Border & Effects -->
+                    <div id="packReveal" class="hidden space-y-3 flex flex-col items-center reveal-anim-step">
+                        <div class="text-xs text-amber-300 font-bold tracking-wide animate-pulse mb-1">
+                            ✨ BẤM VÀO THẺ ĐỂ CẤT VÀO KHO! ✨
+                        </div>
+                        
+                        <div id="fcCardContainer" class="card-square card-tier-low cursor-pointer group relative overflow-hidden transform hover:scale-110 transition duration-300" onclick="claimRevealedCard()">
+                            <div class="flex justify-between items-start z-10">
+                                <div id="fcCardRating" class="font-heading font-black text-xl leading-none text-white drop-shadow">88</div>
+                                <div class="bg-black/50 text-cyan-300 font-bold text-[9px] px-1.5 py-0.5 rounded-lg uppercase tracking-wider border border-white/20">
+                                    <span id="fcCardPosBadge">ST</span>
+                                </div>
+                            </div>
+
+                            <div class="text-center my-auto z-10 flex justify-center">
+                                <div id="fcCardAvatar" class="w-12 h-12 rounded-xl bg-black/60 border border-white/40 flex items-center justify-center text-xl shadow-lg overflow-hidden">
+                                    👤
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col items-center z-10">
+                                <h3 id="fcCardName" class="font-heading font-extrabold text-[11px] truncate w-full text-white text-center drop-shadow">Cầu Thủ Mới</h3>
+                            </div>
+
+                            <div class="absolute inset-0 bg-emerald-950/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center z-30 p-2 text-center rounded-2xl pointer-events-none">
+                                <div class="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-lg font-black mb-1 shadow-lg shadow-emerald-500/50">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+                                <span class="font-heading font-black text-emerald-300 text-xs tracking-wider">LẤY VÀO KHO</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: TRANSFER MARKET (90+ OVR ONLY) -->
+        <section id="view-market" class="hidden space-y-6">
+            <div class="bg-slate-900/80 p-5 rounded-3xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div>
+                    <h2 class="font-heading text-xl font-bold text-white">Chợ Mua Cầu Thủ (Xếp Lần Lượt Theo Thứ Tự)</h2>
+                    <p class="text-xs text-slate-400">Khu vực chuyển nhượng độc quyền: Sắp xếp tuần tự các siêu sao từ chỉ số cao nhất đến thấp hơn (trên 90 OVR).</p>
+                </div>
+            </div>
+
+            <div id="marketGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+        </section>
+
+        <!-- TAB 3: PITCH SQUAD & 24 CUPS MATCHES -->
+        <section id="view-pitch" class="hidden space-y-6">
+            <div class="bg-slate-900/80 p-5 rounded-3xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div>
+                    <h2 class="font-heading text-xl font-bold text-white">Sắp Xếp Cầu Thủ Trên Sân & Thi Đấu Cúp Vòng 16 Đội</h2>
+                    <p class="text-xs text-slate-400">Xếp đủ **11 cầu thủ** theo đúng vị trí trên sân để tham gia **Vòng 16 đội** (kéo dài 90 giây có bù giờ, hiệp phụ, thẻ vàng, thẻ đỏ) tranh **24 loại Cúp** (Nhận Cúp Vàng khi vô địch, Cúp Bạc nếu về nhì, Cúp Đồng nếu thua bán kết)!</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openFriendlyMatchModal()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-cyan-600/30">
+                        <i class="fa-solid fa-handshake"></i> Trận Giao Hữu (90s + Phụ)
+                    </button>
+                    <div id="squadFillCounter" class="bg-cyan-950 border border-cyan-800 text-cyan-300 text-xs font-bold px-4 py-2 rounded-xl">
+                        Đã xếp: <span id="squadFilledCountText" class="text-white font-extrabold">0</span>/11 vị trí
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pitch Squad Layout -->
+            <div class="relative w-full max-w-4xl mx-auto bg-gradient-to-b from-emerald-800 via-emerald-700 to-emerald-900 rounded-3xl p-4 md:p-8 border-4 border-emerald-600 shadow-2xl overflow-hidden min-h-[640px] flex flex-col justify-between">
+                <div class="absolute inset-0 border-2 border-white/20 m-4 rounded-2xl pointer-events-none"></div>
+                <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white/20 pointer-events-none"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border-2 border-white/20 rounded-full pointer-events-none"></div>
+
+                <!-- Row 1: Attackers -->
+                <div class="flex justify-around items-center z-10 my-1">
+                    <div id="slot-LW" class="flex flex-col items-center"></div>
+                    <div id="slot-ST" class="flex flex-col items-center"></div>
+                    <div id="slot-RW" class="flex flex-col items-center"></div>
+                </div>
+
+                <!-- Row 2: Midfielders -->
+                <div class="flex justify-around items-center z-10 my-1">
+                    <div id="slot-LM" class="flex flex-col items-center"></div>
+                    <div id="slot-CM" class="flex flex-col items-center"></div>
+                    <div id="slot-RM" class="flex flex-col items-center"></div>
+                </div>
+
+                <!-- Row 3: Defenders -->
+                <div class="flex justify-around items-center z-10 my-1">
+                    <div id="slot-LB" class="flex flex-col items-center"></div>
+                    <div id="slot-CB1" class="flex flex-col items-center"></div>
+                    <div id="slot-CB2" class="flex flex-col items-center"></div>
+                    <div id="slot-RB" class="flex flex-col items-center"></div>
+                </div>
+
+                <!-- Row 4: Goalkeeper -->
+                <div class="flex justify-center items-center z-10 my-1">
+                    <div id="slot-GK" class="flex flex-col items-center"></div>
+                </div>
+            </div>
+
+            <!-- 24 Cups Selection Arena -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-4xl mx-auto text-center space-y-6 shadow-2xl">
+                <div id="cupSelectionArea" class="space-y-6">
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-heading text-lg font-bold text-white">Chọn 1 Trong 24 Giải Cúp Thi Đấu (Vòng 16 Đội)</h3>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="openInviteFriendModal()" class="text-xs bg-cyan-900/60 hover:bg-cyan-800 border border-cyan-500/40 text-cyan-300 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition">
+                                    <i class="fa-solid fa-paper-plane"></i> Rủ Bạn Giành Cúp
+                                </button>
+                                <button onclick="openCupModal()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-bold">
+                                    <i class="fa-solid fa-trophy"></i> Xem Tủ Cúp & Thành Tích
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400">Lưu ý: Bắt buộc **Xếp đủ 11 vị trí trên sân**. Trận đấu diễn ra **90 giây + bù giờ, hiệp phụ, thẻ vàng, thẻ đỏ**. Thắng đi tiếp qua các vòng (16 đội -> Tứ kết -> Bán kết -> Chung kết). Nếu **Thua**, cúp đó sẽ bị **khóa đúng 1 tuần (7 ngày)** mới được chơi lại!</p>
+                    </div>
+
+                    <div id="matchCupSelectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left max-h-[480px] overflow-y-auto pr-1 custom-scrollbar"></div>
+
+                    <div class="space-y-2 pt-2">
+                        <button id="startMatchBtn" onclick="startTournament()" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-heading font-black rounded-2xl shadow-xl shadow-amber-500/30 transition text-base active:scale-95">
+                            <i class="fa-solid fa-play mr-2"></i> BẮT ĐẦU VÒNG 16 ĐỘI GIẢI CÚP (90s + BÙ GIỜ)
+                        </button>
+                        <p id="squadCheckWarningText" class="text-xs text-rose-400 font-bold hidden">
+                            ⚠️ Bạn chưa xếp đủ 11 cầu thủ trên sân! Hãy bấm vào các ô trống để xếp hoàn chỉnh đội hình.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Match Simulator Box -->
+                <div id="matchArenaBox" class="hidden space-y-6">
+                    <div class="flex justify-between items-center bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <div class="flex items-center space-x-3 text-left">
+                            <div class="w-10 h-10 rounded-xl bg-cyan-900 border border-cyan-400 overflow-hidden flex items-center justify-center">
+                                <img id="matchMyLogoImg" class="w-full h-full object-cover hidden" alt="My Club Logo">
+                                <span id="matchMyLogoFallback" class="text-lg">⚽</span>
+                            </div>
+                            <div>
+                                <h4 id="matchMyClubName" class="font-heading font-bold text-white text-sm">Tên CLB</h4>
+                                <span class="text-[11px] text-cyan-400 font-bold">OVR Đội: <span id="matchMyRating">0</span></span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-center bg-slate-900 px-5 py-2 rounded-xl border border-slate-800">
+                            <div class="font-heading text-2xl font-black flex items-center space-x-3">
+                                <span id="matchScoreMy" class="text-cyan-400">0</span>
+                                <span class="text-slate-600">-</span>
+                                <span id="matchScoreOpp" class="text-rose-400">0</span>
+                            </div>
+                            <div id="matchTimeDisplay" class="text-[10px] text-amber-400 font-mono font-bold">00:00 (H1)</div>
+                        </div>
+
+                        <div class="text-right">
+                            <h4 id="matchOppName" class="font-heading font-bold text-white text-sm">Đối Thủ</h4>
+                            <span class="text-[11px] text-rose-400 font-bold">OVR Đội: <span id="matchOppRating">0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-1 bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
+                            <h5 class="font-bold text-xs text-cyan-400 uppercase">Đội Hình Xuất Phát</h5>
+                            <div id="matchStarting11List" class="grid grid-cols-2 md:grid-cols-1 gap-1.5 max-h-56 overflow-y-auto pr-1"></div>
+                        </div>
+                        <div class="md:col-span-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-col justify-between h-64">
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span id="matchRoundTitleLabel" class="font-bold text-xs text-amber-400 uppercase">Vòng 16 Đội (90 giây + Hiệp Phụ)</span>
+                                <span id="matchCurrentRoundBadge" class="text-[10px] bg-amber-950 text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-800">Đang thi đấu</span>
+                            </div>
+                            <div id="matchCommentary" class="overflow-y-auto flex-1 space-y-1.5 text-left text-xs pr-2 my-2 font-mono">
+                                <p class="text-slate-400">Trận đấu bắt đầu (90s)...</p>
+                            </div>
+                            <button id="nextRoundBtn" onclick="proceedNextTournamentRound()" class="hidden w-full py-3 bg-cyan-600 hover:bg-cyan-500 font-bold rounded-xl text-white transition">
+                                Tiến Vào Vòng Tiếp Theo ➜
+                            </button>
+                            <button id="finishMatchBtn" onclick="closeMatchResult()" class="hidden w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl text-white transition">
+                                Hoàn Thành & Trở Về Sân
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: INVENTORY & SBC UPGRADE -->
+        <section id="view-inventory" class="hidden space-y-6">
+            <div class="bg-slate-900/80 p-5 rounded-3xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div>
+                    <h2 class="font-heading text-xl font-bold text-white">Kho Thẻ Cầu Thủ & Đổi Thẻ 90+</h2>
+                    <p class="text-xs text-slate-400">Quản lý kho thẻ, rê chuột vào thẻ để bán hoặc đổi 3 thẻ bất kỳ lấy siêu sao 90+ OVR.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="inventoryCount" class="text-xs bg-slate-800 px-3 py-1.5 rounded-xl text-slate-300 font-bold">0 Thẻ</span>
+                    <button onclick="sellAllDuplicates()" class="px-3 py-1.5 bg-rose-950/60 hover:bg-rose-900/60 border border-rose-900/60 text-rose-300 font-semibold text-xs rounded-xl transition">
+                        Bán Thẻ Trùng
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upgrade Section -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-heading font-bold text-xs text-amber-400 uppercase tracking-wider">
+                        <i class="fa-solid fa-fire mr-1"></i> Đổi 3 Thẻ Bất Kỳ Lấy Siêu Sao 90+ OVR
+                    </h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-between space-y-3">
+                        <h4 class="font-bold text-xs text-rose-400 uppercase tracking-wider">Thẻ Hiến Tế (3 Thẻ)</h4>
+                        
+                        <div class="grid grid-cols-3 gap-2 w-full justify-items-center items-center">
+                            <div id="upgradeSacrifice1" onclick="openUpgradeCardPicker('sac1')" class="w-[130px] h-[130px] border-2 border-dashed border-slate-700 hover:border-rose-500 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition text-slate-400 bg-slate-900/50 text-center p-2 group shadow-md">
+                                <i class="fa-solid fa-plus text-lg mb-1 text-slate-500 group-hover:text-rose-400 transition"></i>
+                                <span class="text-[10px] font-bold text-slate-400 group-hover:text-white">Thẻ Hiến 1</span>
+                            </div>
+                            <div id="upgradeSacrifice2" onclick="openUpgradeCardPicker('sac2')" class="w-[130px] h-[130px] border-2 border-dashed border-slate-700 hover:border-rose-500 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition text-slate-400 bg-slate-900/50 text-center p-2 group shadow-md">
+                                <i class="fa-solid fa-plus text-lg mb-1 text-slate-500 group-hover:text-rose-400 transition"></i>
+                                <span class="text-[10px] font-bold text-slate-400 group-hover:text-white">Thẻ Hiến 2</span>
+                            </div>
+                            <div id="upgradeSacrifice3" onclick="openUpgradeCardPicker('sac3')" class="w-[130px] h-[130px] border-2 border-dashed border-slate-700 hover:border-rose-500 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition text-slate-400 bg-slate-900/50 text-center p-2 group shadow-md">
+                                <i class="fa-solid fa-plus text-lg mb-1 text-slate-500 group-hover:text-rose-400 transition"></i>
+                                <span class="text-[10px] font-bold text-slate-400 group-hover:text-white">Thẻ Hiến 3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center space-y-3 text-center">
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-xs text-amber-400 uppercase tracking-wider">Phí Quy Đổi</h4>
+                            <p class="text-xs text-slate-300 flex items-center justify-center gap-1">
+                                <span>Chi phí:</span>
+                                <span class="text-amber-300 font-black text-sm">3,000</span>
+                                <span class="w-4 h-4 rounded-full bg-amber-400/20 border border-amber-400 flex items-center justify-center text-[9px] text-amber-300"><i class="fa-solid fa-coins"></i></span>
+                            </p>
+                            <p class="text-[11px] text-cyan-300 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-800/50 inline-block">Nhận ngẫu nhiên 1 cầu thủ 90+ OVR</p>
+                        </div>
+                        <button onclick="executeUpgrade()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 font-heading text-xs font-extrabold rounded-xl shadow-lg text-white transition active:scale-95">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> QUY ĐỔI NGAY
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Grid -->
+            <div id="inventoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+        </section>
+
+    </main>
+
+    <!-- CLUB NAME & LOGO UPLOAD MODAL -->
+    <div id="clubNameModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-cyan-400 text-lg"><i class="fa-solid fa-shield-halved"></i></span>
+                    <h3 class="font-heading font-bold text-base text-white">Cấu Hình Câu Lạc Bộ</h3>
+                </div>
+                <button onclick="closeClubNameModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex flex-col items-center space-y-3">
+                    <label class="text-xs text-slate-400 font-bold uppercase">Hình Ảnh Logo CLB</label>
+                    <div class="relative group cursor-pointer" onclick="document.getElementById('clubLogoFileInput').click()">
+                        <div id="modalLogoPreviewBox" class="w-20 h-20 rounded-2xl bg-slate-950 border-2 border-dashed border-cyan-500/60 flex items-center justify-center text-3xl shadow-lg overflow-hidden group-hover:border-cyan-400 transition">
+                            <span id="modalLogoFallback">⚽</span>
+                            <img id="modalLogoPreviewImg" class="w-full h-full object-cover hidden" alt="Logo Preview">
+                        </div>
+                        <div class="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-[10px] text-cyan-300 font-bold transition">
+                            <i class="fa-solid fa-upload text-sm mb-1"></i>
+                            Tải Ảnh
+                        </div>
+                    </div>
+                    <input type="file" id="clubLogoFileInput" accept="image/*" class="hidden" onchange="handleClubLogoUpload(event)">
+                    <button type="button" onclick="document.getElementById('clubLogoFileInput').click()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-file-arrow-up text-cyan-400"></i>
+                        <span>Tải tệp hình ảnh từ máy</span>
+                    </button>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs text-slate-400 font-bold uppercase">Tên CLB Mới</label>
+                    <input id="clubNameInput" type="text" maxlength="25" placeholder="Nhập tên CLB..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white font-heading font-bold text-sm focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <button onclick="saveClubNameAndLogo()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-heading font-black rounded-2xl shadow-lg text-xs transition">
+                    LƯU THÔNG TIN CLB
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 24 CUPS SHOWCASE MODAL -->
+    <div id="cupModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-5xl w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-amber-400 text-xl"><i class="fa-solid fa-trophy"></i></span>
+                    <div>
+                        <h3 class="font-heading font-bold text-base text-white">Tủ 24 Cúp & Thành Tích</h3>
+                        <p class="text-xs text-slate-400">Xem thành tích Vô địch, Về nhì, Bán kết của từng giải đấu!</p>
+                    </div>
+                </div>
+                <button onclick="closeCupModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <div id="cupShowcaseGrid" class="overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-1 flex-1 custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- FRIEND CODE & CUP INVITE MODAL -->
+    <div id="friendModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg">
+                        ⚽
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-base text-white">Mã Bạn Bè & Mời Giành Cúp</h3>
+                    </div>
+                </div>
+                <button onclick="closeFriendModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <div class="bg-slate-950 p-3.5 rounded-2xl border border-cyan-500/30 space-y-1.5 text-center">
+                <div class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Mã Bạn Bè Của Bạn</div>
+                <div class="flex items-center justify-center space-x-2">
+                    <span id="myFriendCodeVal" class="font-mono text-xl font-black text-cyan-300 tracking-wider">RB-884920</span>
+                    <button onclick="copyFriendCode()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-[10px] px-2.5 py-1.5 rounded-lg transition shadow flex items-center gap-1">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>Sao Chép</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="text-[11px] text-slate-400 font-bold uppercase">Nhập Mã Bạn Bè Mới</label>
+                <div class="flex gap-2">
+                    <input id="inputFriendCode" type="text" placeholder="RB-123456" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-cyan-500 uppercase">
+                    <button onclick="addFriendByCode()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-heading font-black text-xs rounded-xl transition">
+                        KẾT BẠN
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <div class="text-[11px] text-slate-400 font-bold uppercase">Danh Sách Bạn Bè (<span id="friendCount">0</span>)</div>
+                <div id="friendsListContainer" class="max-h-36 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar"></div>
+            </div>
+
+            <div class="space-y-1.5 border-t border-slate-800 pt-3">
+                <div class="text-[11px] text-amber-400 font-bold uppercase flex items-center gap-1">
+                    <i class="fa-solid fa-bullhorn"></i> Thông Báo Rủ Bạn Giành Cúp
+                </div>
+                <div id="friendInviteNotificationsLog" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] text-slate-300 max-h-24 overflow-y-auto space-y-1 font-mono custom-scrollbar">
+                    <p class="text-slate-500 italic">Chưa có thông báo rủ bạn bè nào...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVITE FRIEND TO CUP SPECIFIC MODAL -->
+    <div id="inviteFriendModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-amber-400 text-lg"><i class="fa-solid fa-envelope-open-text"></i></span>
+                    <h3 class="font-heading font-bold text-base text-white">Gửi Lời Mời Rủ Bạn Giành Cúp</h3>
+                </div>
+                <button onclick="closeInviteFriendModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-xs text-slate-400 font-bold uppercase">Chọn Bạn Bè</label>
+                    <select id="inviteSelectFriend" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
+                    </select>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs text-slate-400 font-bold uppercase">Chọn Giải Cúp Cùng Tranh Tài</label>
+                    <select id="inviteSelectCup" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white font-heading text-xs focus:outline-none focus:border-amber-500">
+                    </select>
+                </div>
+
+                <button onclick="sendCupInviteNotification()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-heading font-black rounded-2xl shadow-lg text-xs transition">
+                    📢 GỬI THÔNG BÁO RỦ BẠN GIÀNH CÚP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FRIENDLY MATCH MODAL -->
+    <div id="friendlyMatchModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-cyan-400 text-lg"><i class="fa-solid fa-handshake"></i></span>
+                    <h3 class="font-heading font-bold text-base text-white">Trận Đấu Giao Hữu (90s + Phụ)</h3>
+                </div>
+                <button onclick="closeFriendlyMatchModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-xs text-slate-300">Thi đấu giao hữu kéo dài **90 giây** có bù giờ, hiệp phụ, thẻ vàng, thẻ đỏ với đối thủ ngẫu nhiên để rèn luyện đội hình và nhận thưởng Xu (yêu cầu xếp đủ 11 cầu thủ trên sân).</p>
+                <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-center space-y-2">
+                    <div class="text-xs text-cyan-400 font-bold uppercase">Phần Thưởng Thắng Giao Hữu</div>
+                    <div class="text-amber-300 font-heading font-black text-lg">+1,500 <i class="fa-solid fa-coins text-xs"></i></div>
+                </div>
+                <button onclick="startFriendlyMatch()" class="w-full py-3 bg-cyan-600 hover:bg-cyan-500 font-heading font-black rounded-xl text-white text-xs transition shadow-lg shadow-cyan-600/30">
+                    BẮT ĐẦU TRẬN GIAO HỮU (90 GIÂY)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PLAYER SELECT MODAL -->
+    <div id="playerModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-5 space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 id="modalTitle" class="font-heading font-bold text-base text-white">Chọn Cầu Thủ</h3>
+                <button onclick="closeModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+            <div id="modalPlayerList" class="overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 flex-1 p-1 custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- DAILY ATTENDANCE MODAL -->
+    <div id="attendanceModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 space-y-5 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-amber-400 text-lg"><i class="fa-solid fa-calendar-check"></i></span>
+                    <h3 class="font-heading font-bold text-base text-white">Điểm Danh Hàng Ngày Nhận Xu</h3>
+                </div>
+                <button onclick="closeAttendanceModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-heading font-bold text-xs text-amber-400 uppercase tracking-wider">Điểm Danh 7 Ngày Nhận Quà Khủng</h4>
+                    <span id="attendanceStatusText" class="text-xs text-slate-400 font-semibold">Đã điểm danh hôm nay!</span>
+                </div>
+                <div id="attendanceGrid" class="grid grid-cols-4 sm:grid-cols-7 gap-1.5"></div>
+                <button id="claimDailyBtn" onclick="claimDailyAttendance()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-heading font-black rounded-xl shadow-lg text-xs">
+                    🎁 NHẬN QUÀ ĐIỂM DANH HÔM NAY
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-cyan-500/50 text-white px-4 py-2.5 rounded-2xl shadow-2xl z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-2.5">
+        <span class="text-cyan-400 text-base"><i class="fa-solid fa-circle-info"></i></span>
+        <span id="toastMsg" class="text-xs font-bold">Thông báo hệ thống</span>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSoftClickSound() {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            } catch(e) {}
+        }
+
+        function playLoudClickSound() {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.25);
+            } catch(e) {}
+        }
+
+        const PLAYER_POOL = [
+            { id: 'p1', name: 'Lionel Messi', pos: 'ST', rating: 98, tier: 'high', wcYear: '2022', clubName: 'Inter Miami', nationName: 'ARGENTINA', avatarSvg: '<svg class="w-7 h-7 text-cyan-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 25000, buyPrice: 45000 },
+            { id: 'p2', name: 'Pelé', pos: 'ST', rating: 100, tier: 'high', wcYear: '1970', clubName: 'Santos', nationName: 'BRAZIL', avatarSvg: '<svg class="w-7 h-7 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 40000, buyPrice: 75000 },
+            { id: 'p3', name: 'Diego Maradona', pos: 'CM', rating: 99, tier: 'high', wcYear: '1986', clubName: 'Napoli', nationName: 'ARGENTINA', avatarSvg: '<svg class="w-7 h-7 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 35000, buyPrice: 65000 },
+            { id: 'p4', name: 'Zinedine Zidane', pos: 'CM', rating: 97, tier: 'high', wcYear: '1998', clubName: 'Real Madrid', nationName: 'PHÁP', avatarSvg: '<svg class="w-7 h-7 text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 22000, buyPrice: 40000 },
+            { id: 'p5', name: 'Ronaldo Nazário', pos: 'ST', rating: 98, tier: 'high', wcYear: '2002', clubName: 'Real Madrid', nationName: 'BRAZIL', avatarSvg: '<svg class="w-7 h-7 text-yellow-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 28000, buyPrice: 50000 },
+            { id: 'p6', name: 'Kylian Mbappé', pos: 'LW', rating: 96, tier: 'high', wcYear: '2022', clubName: 'Real Madrid', nationName: 'PHÁP', avatarSvg: '<svg class="w-7 h-7 text-indigo-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 18000, buyPrice: 32000 },
+            { id: 'p7', name: 'Kevin De Bruyne', pos: 'CM', rating: 95, tier: 'mid', wcYear: '2022', clubName: 'Man City', nationName: 'BỈ', avatarSvg: '<svg class="w-7 h-7 text-rose-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 12000, buyPrice: 22000 },
+            { id: 'p8', name: 'Virgil van Dijk', pos: 'CB1', rating: 94, tier: 'mid', wcYear: '2022', clubName: 'Liverpool', nationName: 'HÀ LAN', avatarSvg: '<svg class="w-7 h-7 text-cyan-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 10000, buyPrice: 18000 },
+            { id: 'p9', name: 'Thibaut Courtois', pos: 'GK', rating: 94, tier: 'mid', wcYear: '2022', clubName: 'Real Madrid', nationName: 'BỈ', avatarSvg: '<svg class="w-7 h-7 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 9500, buyPrice: 17000 },
+            { id: 'p10', name: 'Mohamed Salah', pos: 'RW', rating: 95, tier: 'mid', wcYear: '2022', clubName: 'Liverpool', nationName: 'AI CẬP', avatarSvg: '<svg class="w-7 h-7 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 13000, buyPrice: 24000 },
+            { id: 'p11', name: 'Erling Haaland', pos: 'ST', rating: 96, tier: 'high', wcYear: '2026', clubName: 'Man City', nationName: 'NA UY', avatarSvg: '<svg class="w-7 h-7 text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 19000, buyPrice: 35000 },
+            { id: 'p12', name: 'Bukayo Saka', pos: 'RW', rating: 92, tier: 'mid', wcYear: '2022', clubName: 'Arsenal', nationName: 'ANH', avatarSvg: '<svg class="w-7 h-7 text-indigo-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 7500, buyPrice: 14000 },
+            { id: 'p13', name: 'Jude Bellingham', pos: 'CM', rating: 94, tier: 'mid', wcYear: '2022', clubName: 'Real Madrid', nationName: 'ANH', avatarSvg: '<svg class="w-7 h-7 text-yellow-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 11000, buyPrice: 20000 },
+            { id: 'p14', name: 'Vinícius Júnior', pos: 'LW', rating: 95, tier: 'mid', wcYear: '2022', clubName: 'Real Madrid', nationName: 'BRAZIL', avatarSvg: '<svg class="w-7 h-7 text-purple-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 14000, buyPrice: 26000 },
+            { id: 'p15', name: 'Rodri', pos: 'CM', rating: 94, tier: 'mid', wcYear: '2022', clubName: 'Man City', nationName: 'TÂY BAN NHA', avatarSvg: '<svg class="w-7 h-7 text-red-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 9800, buyPrice: 17500 },
+            { id: 'p16', name: 'Achraf Hakimi', pos: 'RB', rating: 91, tier: 'mid', wcYear: '2022', clubName: 'PSG', nationName: 'MAROC', avatarSvg: '<svg class="w-7 h-7 text-cyan-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 5000, buyPrice: 9500 },
+            { id: 'p17', name: 'Theo Hernández', pos: 'LB', rating: 90, tier: 'low', wcYear: '2022', clubName: 'AC Milan', nationName: 'PHÁP', avatarSvg: '<svg class="w-7 h-7 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 4500, buyPrice: 8500 },
+            { id: 'p18', name: 'Alisson Becker', pos: 'GK', rating: 92, tier: 'mid', wcYear: '2022', clubName: 'Liverpool', nationName: 'BRAZIL', avatarSvg: '<svg class="w-7 h-7 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 6000, buyPrice: 11000 },
+            { id: 'p19', name: 'Martin Ødegaard', pos: 'CM', rating: 92, tier: 'mid', wcYear: '2022', clubName: 'Arsenal', nationName: 'NA UY', avatarSvg: '<svg class="w-7 h-7 text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 5500, buyPrice: 10000 },
+            { id: 'p20', name: 'Bernardo Silva', pos: 'RM', rating: 92, tier: 'mid', wcYear: '2022', clubName: 'Man City', nationName: 'BỒ ĐÀO NHA', avatarSvg: '<svg class="w-7 h-7 text-indigo-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 5800, buyPrice: 10500 },
+            { id: 'p21', name: 'Son Heung-min', pos: 'LW', rating: 91, tier: 'mid', wcYear: '2022', clubName: 'Tottenham', nationName: 'HÀN QUỐC', avatarSvg: '<svg class="w-7 h-7 text-rose-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 4800, buyPrice: 9000 },
+            { id: 'p22', name: 'Jamal Musiala', pos: 'LM', rating: 92, tier: 'mid', wcYear: '2022', clubName: 'Bayern', nationName: 'ĐỨC', avatarSvg: '<svg class="w-7 h-7 text-cyan-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 5600, buyPrice: 10200 },
+            { id: 'p23', name: 'Antonio Rüdiger', pos: 'CB2', rating: 91, tier: 'mid', wcYear: '2022', clubName: 'Real Madrid', nationName: 'ĐỨC', avatarSvg: '<svg class="w-7 h-7 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 4900, buyPrice: 9200 },
+            { id: 'p24', name: 'Federico Dimarco', pos: 'LB', rating: 89, tier: 'low', wcYear: '2022', clubName: 'Inter Milan', nationName: 'Ý', avatarSvg: '<svg class="w-7 h-7 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 3800, buyPrice: 7000 },
+            { id: 'p25', name: 'Harry Kane', pos: 'ST', rating: 90, tier: 'low', wcYear: '2022', clubName: 'Bayern', nationName: 'ANH', avatarSvg: '<svg class="w-7 h-7 text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 4000, buyPrice: 7500 },
+            { id: 'p26', name: 'Gavi', pos: 'CM', rating: 88, tier: 'low', wcYear: '2022', clubName: 'Barcelona', nationName: 'TÂY BAN NHA', avatarSvg: '<svg class="w-7 h-7 text-red-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 100 10 5 5 0 000-10zm0 8a3 3 0 110-6 3 3 0 010 6zm9 11v-1a7 7 0 00-14 0v1h2a5 5 0 0110 0h2z"/></svg>', sellPrice: 3500, buyPrice: 6500 }
+        ];
+
+        const CUPS_DATABASE = [
+            { id: 'c1', name: 'World Cup FIFA', icon: '🏆', desc: 'Cúp vàng thế giới danh giá nhất hành tinh', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c2', name: 'Copa America', icon: '🥇', desc: 'Vương miện vô địch Nam Mỹ', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c3', name: 'EURO Championship', icon: '🥈', desc: 'Vinh quang bóng đá Châu Âu', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c4', name: 'AFC Asian Cup', icon: '🥉', desc: 'Giải đấu hàng đầu Châu Á', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c5', name: 'Africa Cup of Nations', icon: '🏅', desc: 'Tinh hoa bóng đá Châu Phi', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c6', name: 'UEFA Champions League', icon: '⭐', desc: 'Đỉnh cao CLB Châu Âu', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c7', name: 'Copa Libertadores', icon: '🌟', desc: 'Danh hiệu danh giá Nam Mỹ cấp CLB', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c8', name: 'FIFA Club World Cup', icon: '🌐', desc: 'Nhà vô địch thế giới các CLB', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c9', name: 'Premier League Trophy', icon: '👑', desc: 'Vương miện Ngoại Hạng Anh', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c10', name: 'La Liga Trophy', icon: '⚽', desc: 'Danh hiệu vô địch Tây Ban Nha', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c11', name: 'Serie A Scudetto', icon: '🛡️', desc: 'Chiếc khiên vô địch Italia', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c12', name: 'Bundesliga Meisterschale', icon: '🎖️', desc: 'Đĩa bạc vô địch Đức', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c13', name: 'Ligue 1 Hexagoal', icon: '💎', desc: 'Cúp vô địch quốc gia Pháp', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c14', name: 'FA Cup', icon: '🏆', desc: 'Giải cúp truyền thống lâu đời nhất Anh Quốc', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c15', name: 'Copa del Rey', icon: '🥇', desc: 'Cúp nhà vua Tây Ban Nha', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c16', name: 'Coppa Italia', icon: '🥈', desc: 'Cúp quốc gia Italia', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c17', name: 'DFB-Pokal', icon: '🥉', desc: 'Cúp bóng đá Đức', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c18', name: 'Coupe de France', icon: '🏅', desc: 'Cúp quốc gia Pháp', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c19', name: 'UEFA Europa League', icon: '🛡️', desc: 'Đấu trường hạng hai Châu Âu', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c20', name: 'UEFA Conference League', icon: '⭐', desc: 'Cúp cúp châu Âu hạng ba', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c21', name: 'Supercoppa Italiana', icon: '🌟', desc: 'Siêu cúp Italia', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c22', name: 'Supercopa de España', icon: '⚽', desc: 'Siêu cúp Tây Ban Nha', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c23', name: 'Community Shield', icon: '👑', desc: 'Siêu cúp Anh Quốc', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 },
+            { id: 'c24', name: 'Intercontinental Cup', icon: '🌐', desc: 'Cúp liên lục địa lịch sử', status: 'normal', lockedUntil: 0, goldCount: 0, silverCount: 0, bronzeCount: 0 }
+        ];
+
+        let gameState = {
+            coins: 5500,
+            friendCode: 'RB-' + Math.floor(100000 + Math.random() * 900000),
+            clubName: 'CLB Bóng Đá Pro',
+            clubLogo: '',
+            inventory: [],
+            squad: {
+                LW: null, ST: null, RW: null,
+                LM: null, CM: null, RM: null,
+                LB: null, CB1: null, CB2: null, RB: null,
+                GK: null
+            },
+            friends: [],
+            friendInvites: [],
+            cups: CUPS_DATABASE,
+            attendanceClaimedDays: [],
+            lastAttendanceDate: ''
+        };
+
+        let currentPackType = 'normal';
+        let activeRevealCard = null;
+        let activeUpgradeSlot = null;
+        let upgradeSacrifices = { sac1: null, sac2: null, sac3: null };
+        let activeSquadSlot = null;
+        let selectedMatchCupId = 'c1';
+
+        let currentTournament = {
+            cupId: null,
+            roundIndex: 0,
+            opponentTeamName: '',
+            opponentRating: 0,
+            myStarting11: [],
+            timerInterval: null,
+            matchTimeSeconds: 0,
+            matchPhase: 'H1', // 'H1', 'HT', 'H2', 'ET1', 'ET2', 'PEN', 'FINISHED'
+            myScore: 0,
+            oppScore: 0,
+            yellowCards: 0,
+            redCards: 0
+        };
+
+        window.onload = function() {
+            const saved = localStorage.getItem('random_ball_ultimate_team_state_v12');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    gameState = { ...gameState, ...parsed };
+                } catch(e) {}
+            }
+            if (!gameState.inventory || gameState.inventory.length === 0) {
+                gameState.inventory.push(
+                    { ...PLAYER_POOL[23], uniqueInstanceId: 'init_1' },
+                    { ...PLAYER_POOL[3], uniqueInstanceId: 'init_z' },
+                    { ...PLAYER_POOL[5], uniqueInstanceId: 'init_2' },
+                    { ...PLAYER_POOL[8], uniqueInstanceId: 'init_3' }
+                );
+            }
+
+            if (gameState.cups) {
+                gameState.cups = CUPS_DATABASE.map(defaultCup => {
+                    const existing = gameState.cups.find(c => c.id === defaultCup.id);
+                    if (existing) {
+                        return { 
+                            ...defaultCup, 
+                            ...existing,
+                            goldCount: existing.goldCount || (existing.status === 'gold' ? 1 : 0),
+                            silverCount: existing.silverCount || (existing.status === 'silver' ? 1 : 0),
+                            bronzeCount: existing.bronzeCount || (existing.status === 'bronze' ? 1 : 0)
+                        };
+                    }
+                    return defaultCup;
+                });
+            }
+
+            updateUI();
+            initActivitySimulation();
+        };
+
+        function saveState() {
+            localStorage.setItem('random_ball_ultimate_team_state_v12', JSON.stringify(gameState));
+            updateUI();
+        }
+
+        function getCardTierClass(rating) {
+            if (rating <= 90) return 'card-tier-low';
+            if (rating >= 91 && rating <= 95) return 'card-tier-mid';
+            return 'card-tier-high';
+        }
+
+        function handleCardClickAction(rating) {
+            if (rating >= 91 && rating <= 95) {
+                playSoftClickSound();
+            } else if (rating >= 96 && rating <= 100) {
+                playLoudClickSound();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('statCoins').innerText = gameState.coins.toLocaleString();
+            document.getElementById('headerClubName').innerText = gameState.clubName;
+            document.getElementById('headerFriendCodeDisplay').innerText = gameState.friendCode;
+            document.getElementById('myFriendCodeVal').innerText = gameState.friendCode;
+
+            const logoImg = document.getElementById('headerClubLogoImg');
+            const logoFallback = document.getElementById('headerClubLogoFallback');
+            if (gameState.clubLogo) {
+                logoImg.src = gameState.clubLogo;
+                logoImg.classList.remove('hidden');
+                logoFallback.classList.add('hidden');
+            } else {
+                logoImg.classList.add('hidden');
+                logoFallback.classList.remove('hidden');
+            }
+
+            const totalWonCups = gameState.cups.reduce((acc, c) => acc + (c.goldCount || 0) + (c.silverCount || 0) + (c.bronzeCount || 0), 0);
+            document.getElementById('statTrophies').innerText = `${totalWonCups} Cúp`;
+
+            renderInventory();
+            renderMarket();
+            renderSquadPitch();
+            renderCupsGrid();
+            renderMatchCupSelect();
+            renderFriendsList();
+        }
+
+        function switchTab(tabId) {
+            ['roll', 'market', 'pitch', 'inventory'].forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const btn = document.getElementById(`nav-${t}`);
+                if (t === tabId) {
+                    view.classList.remove('hidden');
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-600 text-white shadow-md flex items-center space-x-1.5";
+                } else {
+                    view.classList.add('hidden');
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition bg-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-1.5";
+                }
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function initActivitySimulation() {
+            document.addEventListener('visibilitychange', () => {
+                const dot = document.getElementById('headerClubStatusDot');
+                const txt = document.getElementById('headerClubStatusText');
+                if (document.hidden) {
+                    dot.className = "w-2 h-2 rounded-full status-dot-inactive";
+                    txt.innerText = "Tạm Rời";
+                    txt.className = "font-bold text-[10px] text-rose-400";
+                } else {
+                    dot.className = "w-2 h-2 rounded-full status-dot-active";
+                    txt.innerText = "Hoạt Động";
+                    txt.className = "font-bold text-[10px] text-emerald-400";
+                }
+            });
+        }
+
+        function openClubNameModal() {
+            document.getElementById('clubNameInput').value = gameState.clubName;
+            const prevImg = document.getElementById('modalLogoPreviewImg');
+            const prevFallback = document.getElementById('modalLogoFallback');
+            if (gameState.clubLogo) {
+                prevImg.src = gameState.clubLogo;
+                prevImg.classList.remove('hidden');
+                prevFallback.classList.add('hidden');
+            } else {
+                prevImg.classList.add('hidden');
+                prevFallback.classList.add('hidden');
+            }
+            document.getElementById('clubNameModal').classList.remove('hidden');
+        }
+        function closeClubNameModal() {
+            document.getElementById('clubNameModal').classList.add('hidden');
+        }
+        function handleClubLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+                    document.getElementById('modalLogoPreviewImg').src = base64;
+                    document.getElementById('modalLogoPreviewImg').classList.remove('hidden');
+                    document.getElementById('modalLogoFallback').classList.add('hidden');
+                    gameState.clubLogo = base64;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        function saveClubNameAndLogo() {
+            const nameVal = document.getElementById('clubNameInput').value.trim();
+            if (nameVal) {
+                gameState.clubName = nameVal;
+            }
+            saveState();
+            closeClubNameModal();
+            showToast("Đã cập nhật thông tin CLB thành công!");
+        }
+
+        function switchPackType(type) {
+            currentPackType = type;
+            const btnNormal = document.getElementById('packBtnNormal');
+            const btnEpic95 = document.getElementById('packBtnEpic95');
+            const box = document.getElementById('packBoxVisual');
+            const title = document.getElementById('packTitleLabel');
+            const subtitle = document.getElementById('packSubtitleLabel');
+            const price = document.getElementById('packPriceLabel');
+
+            if (type === 'normal') {
+                btnNormal.className = "px-4 py-2 rounded-xl font-heading font-bold text-xs transition bg-cyan-600 text-white shadow-lg shadow-cyan-600/30";
+                btnEpic95.className = "px-4 py-2 rounded-xl font-heading font-bold text-xs transition bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5";
+                box.className = "w-56 h-56 mx-auto bg-gradient-to-b from-blue-600 via-indigo-900 to-slate-950 rounded-3xl border-4 border-cyan-400 shadow-2xl flex flex-col items-center justify-between p-5 transform group-hover:scale-105 transition duration-300 relative overflow-hidden pack-glowing";
+                title.innerText = "Random Ball Pack";
+                subtitle.innerText = "Gói Cầu Thủ Vàng";
+                price.innerText = "Nhấn để mở gói thẻ ngay!";
+            } else {
+                btnEpic95.className = "px-4 py-2 rounded-xl font-heading font-bold text-xs transition bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30 flex items-center gap-1.5";
+                btnNormal.className = "px-4 py-2 rounded-xl font-heading font-bold text-xs transition bg-slate-800 text-slate-300 hover:bg-slate-700";
+                box.className = "w-56 h-56 mx-auto bg-gradient-to-b from-purple-900 via-pink-950 to-slate-950 rounded-3xl border-4 border-fuchsia-400 shadow-2xl flex flex-col items-center justify-between p-5 transform group-hover:scale-105 transition duration-300 relative overflow-hidden pack-epic-glowing";
+                title.innerText = "Super Star Pack";
+                subtitle.innerText = "Gói Thẻ Siêu Sao";
+                price.innerText = "Giá: 15,000 Xu";
+            }
+        }
+
+        function openFCCardPack() {
+            if (currentPackType === 'epic95') {
+                if (gameState.coins < 15000) {
+                    showToast("Bạn không đủ 15,000 Xu để mở gói này!");
+                    return;
+                }
+                gameState.coins -= 15000;
+            }
+
+            document.getElementById('packClosed').classList.add('hidden');
+            
+            let pool = PLAYER_POOL;
+            if (currentPackType === 'epic95') {
+                pool = PLAYER_POOL.filter(p => p.rating >= 95);
+            }
+            activeRevealCard = pool[Math.floor(Math.random() * pool.length)];
+
+            document.getElementById('packNationReveal').classList.remove('hidden');
+            document.getElementById('revealNationNameText').innerText = activeRevealCard.nationName;
+
+            setTimeout(() => {
+                document.getElementById('packNationReveal').classList.add('hidden');
+                document.getElementById('packYearReveal').classList.remove('hidden');
+                document.getElementById('revealYearText').innerText = activeRevealCard.wcYear;
+
+                setTimeout(() => {
+                    document.getElementById('packYearReveal').classList.add('hidden');
+                    document.getElementById('packPositionReveal').classList.remove('hidden');
+                    document.getElementById('revealPositionText').innerText = activeRevealCard.pos;
+
+                    setTimeout(() => {
+                        document.getElementById('packPositionReveal').classList.add('hidden');
+                        document.getElementById('packReveal').classList.remove('hidden');
+
+                        const container = document.getElementById('fcCardContainer');
+                        const tierClass = getCardTierClass(activeRevealCard.rating);
+                        container.className = `card-square ${tierClass} cursor-pointer group relative overflow-hidden transform hover:scale-110 transition duration-300`;
+                        container.onclick = () => {
+                            handleCardClickAction(activeRevealCard.rating);
+                            claimRevealedCard();
+                        };
+
+                        document.getElementById('fcCardRating').innerText = activeRevealCard.rating;
+                        document.getElementById('fcCardPosBadge').innerText = activeRevealCard.pos;
+                        document.getElementById('fcCardAvatar').innerHTML = activeRevealCard.avatarSvg;
+                        document.getElementById('fcCardName').innerText = activeRevealCard.name;
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+
+        function claimRevealedCard() {
+            if (!activeRevealCard) return;
+            const newCard = { ...activeRevealCard, uniqueInstanceId: 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) };
+            gameState.inventory.push(newCard);
+            saveState();
+
+            showToast(`Đã nhận thẻ ${activeRevealCard.name} (${activeRevealCard.rating}) vào kho!`);
+            
+            document.getElementById('packReveal').classList.add('hidden');
+            document.getElementById('packClosed').classList.remove('hidden');
+            activeRevealCard = null;
+        }
+
+        function renderMarket() {
+            const grid = document.getElementById('marketGrid');
+            grid.innerHTML = '';
+            
+            const marketPlayers = PLAYER_POOL.filter(p => p.rating > 90).sort((a, b) => b.rating - a.rating);
+
+            marketPlayers.forEach(player => {
+                const tierClass = getCardTierClass(player.rating);
+
+                const cardDiv = document.createElement('div');
+                cardDiv.className = `${tierClass} card-square flex flex-col justify-between mx-auto relative cursor-pointer`;
+                cardDiv.onclick = () => handleCardClickAction(player.rating);
+
+                cardDiv.innerHTML = `
+                    <div class="flex justify-between items-start z-10">
+                        <div class="font-heading font-black text-xl leading-none text-white drop-shadow">${player.rating}</div>
+                        <div class="bg-black/50 text-cyan-300 font-bold text-[9px] px-1.5 py-0.5 rounded-lg uppercase tracking-wider border border-white/20">
+                            ${player.pos}
+                        </div>
+                    </div>
+                    <div class="text-center my-auto z-10 flex justify-center">
+                        <div class="w-12 h-12 rounded-xl bg-black/60 border border-white/40 flex items-center justify-center text-xl shadow-lg overflow-hidden">
+                            ${player.avatarSvg}
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center z-10">
+                        <h3 class="font-heading font-extrabold text-[11px] truncate w-full text-white text-center drop-shadow">${player.name}</h3>
+                    </div>
+                `;
+
+                const overlay = document.createElement('div');
+                overlay.className = 'absolute inset-0 bg-slate-950/90 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center z-30 p-2 text-center rounded-2xl';
+                overlay.innerHTML = `
+                    <div class="flex items-center space-x-1 mb-1 bg-slate-900/90 px-2 py-0.5 rounded-lg border border-amber-500/40">
+                        <i class="fa-solid fa-coins text-amber-400 text-[10px]"></i>
+                        <span class="text-[10px] text-amber-300 font-black">${player.buyPrice.toLocaleString()}</span>
+                    </div>
+                    <button onclick="event.stopPropagation(); buyMarketPlayer('${player.id}')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg shadow flex items-center gap-1">
+                        <span>MUA THẺ</span>
+                    </button>
+                `;
+                cardDiv.appendChild(overlay);
+
+                grid.appendChild(cardDiv);
+            });
+        }
+
+        function buyMarketPlayer(playerId) {
+            const player = PLAYER_POOL.find(p => p.id === playerId);
+            if (!player) return;
+            if (gameState.coins < player.buyPrice) {
+                showToast("Bạn không đủ Xu để mua cầu thủ này!");
+                return;
+            }
+            gameState.coins -= player.buyPrice;
+            const newCard = { ...player, uniqueInstanceId: 'buy_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) };
+            gameState.inventory.push(newCard);
+            saveState();
+            showToast(`Đã mua thành công ${player.name} (${player.rating}) vào kho!`);
+        }
+
+        function renderInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+            document.getElementById('inventoryCount').innerText = `${gameState.inventory.length} Thẻ`;
+
+            if (gameState.inventory.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-slate-400 text-xs">Kho thẻ trống! Hãy mở gói thẻ hoặc mua tại chợ chuyển nhượng.</div>`;
+                return;
+            }
+
+            gameState.inventory.forEach(card => {
+                const tierClass = getCardTierClass(card.rating);
+                const cardDiv = document.createElement('div');
+                cardDiv.className = `${tierClass} card-square flex flex-col justify-between mx-auto relative cursor-pointer group`;
+                cardDiv.onclick = () => handleCardClickAction(card.rating);
+
+                cardDiv.innerHTML = `
+                    <div class="flex justify-between items-start z-10">
+                        <div class="font-heading font-black text-xl leading-none text-white drop-shadow">${card.rating}</div>
+                        <div class="bg-black/50 text-cyan-300 font-bold text-[9px] px-1.5 py-0.5 rounded-lg uppercase tracking-wider border border-white/20">${card.pos}</div>
+                    </div>
+                    <div class="text-center my-auto z-10 flex justify-center">
+                        <div class="w-12 h-12 rounded-xl bg-black/60 border border-white/40 flex items-center justify-center text-xl shadow-lg overflow-hidden">${card.avatarSvg}</div>
+                    </div>
+                    <div class="flex flex-col items-center z-10">
+                        <h3 class="font-heading font-extrabold text-[11px] truncate w-full text-white text-center drop-shadow">${card.name}</h3>
+                    </div>
+                    
+                    <div class="absolute inset-0 bg-slate-950/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center z-30 p-2 text-center rounded-2xl">
+                        <button onclick="event.stopPropagation(); sellInventoryCard('${card.uniqueInstanceId}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-heading font-black text-xs rounded-xl shadow-lg mb-2 flex items-center gap-1.5 transition">
+                            <span>Bán</span>
+                            <div class="flex items-center gap-0.5 text-amber-300 font-bold text-[10px]">
+                                <i class="fa-solid fa-coins"></i>
+                                <span>${(card.sellPrice || 3000).toLocaleString()}</span>
+                            </div>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(cardDiv);
+            });
+        }
+
+        function sellInventoryCard(uniqueId) {
+            const index = gameState.inventory.findIndex(c => c.uniqueInstanceId === uniqueId);
+            if (index > -1) {
+                const card = gameState.inventory[index];
+                const price = card.sellPrice || 3000;
+                gameState.coins += price;
+                gameState.inventory.splice(index, 1);
+                
+                Object.keys(gameState.squad).forEach(pos => {
+                    if (gameState.squad[pos] && gameState.squad[pos].uniqueInstanceId === uniqueId) {
+                        gameState.squad[pos] = null;
+                    }
+                });
+
+                saveState();
+                showToast(`Đã bán ${card.name} thu về ${price.toLocaleString()} Xu!`);
+            }
+        }
+
+        function sellAllDuplicates() {
+            const keepMap = {};
+            let soldCount = 0;
+            let totalEarned = 0;
+
+            const newInv = [];
+            gameState.inventory.forEach(c => {
+                const isEquipped = Object.values(gameState.squad).some(sc => sc && sc.uniqueInstanceId === c.uniqueInstanceId);
+                if (!keepMap[c.id] || isEquipped) {
+                    keepMap[c.id] = true;
+                    newInv.push(c);
+                } else {
+                    soldCount++;
+                    totalEarned += (c.sellPrice || 3000);
+                    Object.keys(gameState.squad).forEach(pos => {
+                        if (gameState.squad[pos] && gameState.squad[pos].uniqueInstanceId === c.uniqueInstanceId) {
+                            gameState.squad[pos] = null;
+                        }
+                    });
+                }
+            });
+
+            gameState.inventory = newInv;
+            gameState.coins += totalEarned;
+            saveState();
+            showToast(`Đã bán ${soldCount} thẻ trùng thu về ${totalEarned.toLocaleString()} Xu!`);
+        }
+
+        function openUpgradeCardPicker(slotKey) {
+            activeUpgradeSlot = slotKey;
+            const modal = document.getElementById('playerModal');
+            document.getElementById('modalTitle').innerText = "Chọn Thẻ Hiến Tế";
+            const listContainer = document.getElementById('modalPlayerList');
+            listContainer.innerHTML = '';
+
+            if (gameState.inventory.length === 0) {
+                listContainer.innerHTML = `<div class="col-span-full text-center text-slate-400 py-6 text-xs">Kho thẻ của bạn đang trống!</div>`;
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            gameState.inventory.forEach(card => {
+                const tierClass = getCardTierClass(card.rating);
+                const cardDiv = document.createElement('div');
+                cardDiv.className = `${tierClass} card-square flex flex-col justify-between mx-auto cursor-pointer group`;
+                cardDiv.onclick = () => {
+                    upgradeSacrifices[activeUpgradeSlot] = card;
+                    renderUpgradeSlots();
+                    closeModal();
+                };
+
+                cardDiv.innerHTML = `
+                    <div class="flex justify-between items-start z-10">
+                        <div class="font-heading font-black text-xl leading-none text-white drop-shadow">${card.rating}</div>
+                        <div class="bg-black/50 text-cyan-300 font-bold text-[9px] px-1.5 py-0.5 rounded-lg uppercase tracking-wider border border-white/20">${card.pos}</div>
+                    </div>
+                    <div class="text-center my-auto z-10 flex justify-center">
+                        <div class="w-12 h-12 rounded-xl bg-black/60 border border-white/40 flex items-center justify-center text-xl shadow-lg overflow-hidden">${card.avatarSvg}</div>
+                    </div>
+                    <div class="flex flex-col items-center z-10">
+                        <h3 class="font-heading font-extrabold text-[11px] truncate w-full text-white text-center drop-shadow">${card.name}</h3>
+                    </div>
+                `;
+                listContainer.appendChild(cardDiv);
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        function renderUpgradeSlots() {
+            ['sac1', 'sac2', 'sac3'].forEach(slotKey => {
+                const slotDiv = document.getElementById(`upgradeSacrifice${slotKey.replace('sac', '')}`);
+                const card = upgradeSacrifices[slotKey];
+                if (!card) {
+                    slotDiv.className = "w-[130px] h-[130px] border-2 border-dashed border-slate-700 hover:border-rose-500 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition text-slate-400 bg-slate-900/50 text-center p-2 group shadow-md";
+                    slotDiv.innerHTML = `
+                        <i class="fa-solid fa-plus text-lg mb-1 text-slate-500 group-hover:text-rose-400 transition"></i>
+                        <span class="text-[10px] font-bold text-slate-400 group-hover:text-white">Thẻ Hiến ${slotKey.replace('sac', '')}</span>
+                    `;
+                } else {
+                    const tierClass = getCardTierClass(card.rating);
+                    slotDiv.className = `${tierClass} card-square flex flex-col justify-between mx-auto cursor-pointer group`;
+                    slotDiv.innerHTML = `
+                        <div class="flex justify-between items-start z-10">
+                            <div class="font-heading font-black text-xl leading-none text-white drop-shadow">${card.rating}</div>
+                            <div class="bg-black/50 text-cyan-300 font-bold text-[9px] px-1.5 py-0.5 rounded-lg uppercase tracking-wider border border-white/20">${card.pos}</div>
+                        </div>
+                        <div class="text-center my-auto z-10 flex justify-center">
+                            <div class="w-12 h-12 rounded-xl bg-black/60 border border-white/40 flex items-center justify-center text-xl shadow-lg overflow-hidden">${card.avatarSvg}</div>
+                        </div>
+                        <div class="flex flex-col items-center z-10">
+                            <h3 class="font-heading font-extrabold text-[11px] truncate w-full text-white text-center drop-shadow">${card.name}</h3>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function executeUpgrade() {
+            if (!upgradeSacrifices.sac1 || !upgradeSacrifices.sac2 || !upgradeSacrifices.sac3) {
+                showToast("Vui lòng chọn đủ 3 thẻ hiến tế!");
+                return;
+            }
+            if (gameState.coins < 3000) {
+                showToast("Bạn không đủ 3,000 Xu để thực hiện quy đổi!");
+                return;
+            }
+
+            gameState.coins -= 3000;
+
+            const sacrificeIds = [upgradeSacrifices.sac1.uniqueInstanceId, upgradeSacrifices.sac2.uniqueInstanceId, upgradeSacrifices.sac3.uniqueInstanceId];
+            gameState.inventory = gameState.inventory.filter(c => !sacrificeIds.includes(c.uniqueInstanceId));
+
+            Object.keys(gameState.squad).forEach(pos => {
+                if (gameState.squad[pos] && sacrificeIds.includes(gameState.squad[pos].uniqueInstanceId)) {
+                    gameState.squad[pos] = null;
+                }
+            });
+
+            upgradeSacrifices = { sac1: null, sac2: null, sac3: null };
+            renderUpgradeSlots();
+
+            const eligiblePool = PLAYER_POOL.filter(p => p.rating >= 90);
+            const rewardPlayer = eligiblePool[Math.floor(Math.random() * eligiblePool.length)];
+            const newCard = { ...rewardPlayer, uniqueInstanceId: 'upg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) };
+            gameState.inventory.push(newCard);
+
+            saveState();
+            showToast(`Quy đổi thành công! Nhận được ${rewardPlayer.name} (${rewardPlayer.rating}) 90+ OVR!`);
+        }
+
+        function renderSquadPitch() {
+            let filledCount = 0;
+            Object.keys(gameState.squad).forEach(pos => {
+                const card = gameState.squad[pos];
+                const slotContainer = document.getElementById(`slot-${pos}`);
+                slotContainer.innerHTML = '';
+
+                if (card) {
+                    filledCount++;
+                    const tierClass = getCardTierClass(card.rating);
+                    const isWrongPos = card.pos !== pos;
+
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = `${tierClass} card-square cursor-pointer group relative overflow-hidden`;
+                    cardDiv.onclick = () => openSquadCardPicker(pos);
+
+                    cardDiv.innerHTML = `
+                        ${isWrongPos ? '<div class="wrong-position-banner">Sai Vị Trí</div>' : ''}
+                        <div class="flex justify-between items-start z-10">
+                            <div class="font-heading font-black text-xl leading-none text-white drop-shadow">${card.rating}</div>
+                            <div class="bg-black/50 text-cyan-300 font-bold text-[9px] px-1.5 py-0.5 rounded-lg uppercase tracking-wider border border-white/20">${card.pos}</div>
+                        </div>
+                        <div class="text-center my-auto z-10 flex justify-center">
+                            <div class="w-12 h-12 rounded-xl bg-black/60 border border-white/40 flex items-center justify-center text-xl shadow-lg overflow-hidden">${card.avatarSvg}</div>
+                        </div>
+                        <div class="flex flex-col items-center z-10">
+                            <h3 class="font-heading font-extrabold text-[11px] truncate w-full text-white text-center drop-shadow">${card.name}</h3>
+                        </div>
+                        
+                        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center z-30 p-2 text-center rounded-2xl">
+                            <span class="font-heading font-black text-cyan-300 text-[10px]">ĐỔI CẦU THỦ</span>
+                        </div>
+                    `;
+                    slotContainer.appendChild(cardDiv);
+                } else {
+                    const emptyBtn = document.createElement('button');
+                    emptyBtn.className = "w-[110px] h-[110px] md:w-[120px] md:h-[120px] rounded-2xl border-2 border-dashed border-white/40 hover:border-cyan-400 bg-emerald-950/60 hover:bg-emerald-900/80 flex flex-col items-center justify-center text-white transition group shadow-lg";
+                    emptyBtn.onclick = () => openSquadCardPicker(pos);
+                    emptyBtn.innerHTML = `
+                        <i class="fa-solid fa-plus text-xl mb-1 text-white/70 group-hover:text-cyan-400 transition"></i>
+                        <span class="font-heading font-black text-xs text-white uppercase tracking-wider">${pos}</span>
+                    `;
+                    slotContainer.appendChild(emptyBtn);
+                }
+            });
+
+            document.getElementById('squadFilledCountText').innerText = filledCount;
+            const warningEl = document.getElementById('squadCheckWarningText');
+            if (filledCount < 11) {
+                warningEl.classList.remove('hidden');
+            } else {
+                warningEl.classList.add('hidden');
+            }
+        }
+
+        function openSquadCardPicker(pos) {
+            activeSquadSlot = pos;
+            const modal = document.getElementById('playerModal');
+            document.getElementById('modalTitle').innerText = `Chọn Cầu Thủ Cho Vị Trí [${pos}]`;
+            const listContainer = document.getElementById('modalPlayerList');
+            listContainer.innerHTML = '';
+
+            const equippedIds = Object.values(gameState.squad).filter(c => c !== null).map(c => c.uniqueInstanceId);
+            const availableCards = gameState.inventory.filter(c => !equippedIds.includes(c.uniqueInstanceId));
+
+            if (availableCards.length === 0) {
+                listContainer.innerHTML = `<div class="col-span-full text-center text-slate-400 py-6 text-xs">Không có cầu thủ nào khác trong kho!</div>`;
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            availableCards.forEach(card => {
+                const tierClass = getCardTierClass(card.rating);
+                const isWrongPos = card.pos !== pos;
+
+                const cardDiv = document.createElement('div');
+                cardDiv.className = `${tierClass} card-square flex flex-col justify-between mx-auto cursor-pointer group relative overflow-hidden`;
+                cardDiv.onclick = () => {
+                    gameState.squad[activeSquadSlot] = card;
+                    saveState();
+                    closeModal();
+                    showToast(`Đã xếp ${card.name} vào vị trí ${activeSquadSlot}!`);
+                };
+
+                cardDiv.innerHTML = `
+                    ${isWrongPos ? '<div class="wrong-position-banner">Sai Vị Trí</div>' : ''}
+                    <div class="flex justify-between items-start z-10">
+                        <div class="font-heading font-black text-xl leading-none text-white drop-shadow">${card.rating}</div>
+                        <div class="bg-black/50 text-cyan-300 font-bold text-[9px] px-1.5 py-0.5 rounded-lg uppercase tracking-wider border border-white/20">${card.pos}</div>
+                    </div>
+                    <div class="text-center my-auto z-10 flex justify-center">
+                        <div class="w-12 h-12 rounded-xl bg-black/60 border border-white/40 flex items-center justify-center text-xl shadow-lg overflow-hidden">${card.avatarSvg}</div>
+                    </div>
+                    <div class="flex flex-col items-center z-10">
+                        <h3 class="font-heading font-extrabold text-[11px] truncate w-full text-white text-center drop-shadow">${card.name}</h3>
+                    </div>
+                `;
+                listContainer.appendChild(cardDiv);
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('playerModal').classList.add('hidden');
+        }
+
+        function renderMatchCupSelect() {
+            const grid = document.getElementById('matchCupSelectGrid');
+            grid.innerHTML = '';
+
+            const now = Date.now();
+
+            gameState.cups.forEach(cup => {
+                const isSelected = selectedMatchCupId === cup.id;
+                const isLocked = cup.status === 'locked' && cup.lockedUntil > now;
+
+                let statusBadge = `<span class="text-[9px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded font-bold">Khả Dụng</span>`;
+                if (isLocked) {
+                    const remainingHours = Math.ceil((cup.lockedUntil - now) / (1000 * 60 * 60));
+                    statusBadge = `<span class="text-[9px] bg-rose-950 text-rose-300 px-2 py-0.5 rounded font-bold">Khóa (${remainingHours}h)</span>`;
+                } else if (cup.goldCount > 0) {
+                    statusBadge = `<span class="text-[9px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded font-bold">Vô Địch (Vàng x${cup.goldCount})</span>`;
+                }
+
+                const cardDiv = document.createElement('div');
+                cardDiv.className = `p-3 rounded-2xl border transition cursor-pointer flex items-center justify-between ${isSelected ? 'bg-cyan-950/80 border-cyan-400 shadow-lg' : 'bg-slate-950 border-slate-800 hover:border-slate-700'}`;
+                
+                if (!isLocked) {
+                    cardDiv.onclick = () => {
+                        selectedMatchCupId = cup.id;
+                        renderMatchCupSelect();
+                    };
+                }
+
+                cardDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-xl shadow">
+                            ${cup.icon}
+                        </div>
+                        <div>
+                            <h4 class="font-heading font-bold text-xs text-white">${cup.name}</h4>
+                            <p class="text-[10px] text-slate-400 line-clamp-1">${cup.desc}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        ${statusBadge}
+                    </div>
+                `;
+                grid.appendChild(cardDiv);
+            });
+        }
+
+        function renderCupsGrid() {
+            const grid = document.getElementById('cupShowcaseGrid');
+            grid.innerHTML = '';
+            const now = Date.now();
+
+            gameState.cups.forEach(cup => {
+                const isLocked = cup.status === 'locked' && cup.lockedUntil > now;
+                let lockMsg = '';
+                if (isLocked) {
+                    const remainingHours = Math.ceil((cup.lockedUntil - now) / (1000 * 60 * 60));
+                    lockMsg = `<div class="text-[10px] text-rose-400 font-bold mt-1">Đang bị khóa (${remainingHours} giờ)</div>`;
+                }
+
+                const cupDiv = document.createElement('div');
+                cupDiv.className = `bg-slate-950 p-4 rounded-2xl border ${isLocked ? 'border-rose-900/60' : 'border-slate-800'} flex flex-col justify-between space-y-2 text-center`;
+                
+                cupDiv.innerHTML = `
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center text-3xl shadow-lg">
+                        ${cup.icon}
+                    </div>
+                    <div>
+                        <h4 class="font-heading font-bold text-xs text-white">${cup.name}</h4>
+                        <p class="text-[10px] text-slate-400">${cup.desc}</p>
+                        ${lockMsg}
+                    </div>
+                    <div class="grid grid-cols-3 gap-1 pt-2 border-t border-slate-800 text-[10px]">
+                        <div class="bg-amber-950/60 border border-amber-800/60 rounded p-1">
+                            <span class="block text-amber-400 font-black">🏆 ${(cup.goldCount || 0)}</span>
+                            <span class="text-[9px] text-slate-400">Vàng</span>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-700 rounded p-1">
+                            <span class="block text-slate-300 font-black">🥈 ${(cup.silverCount || 0)}</span>
+                            <span class="text-[9px] text-slate-400">Bạc</span>
+                        </div>
+                        <div class="bg-amber-900/40 border border-amber-900/60 rounded p-1">
+                            <span class="block text-amber-600 font-black">🥉 ${(cup.bronzeCount || 0)}</span>
+                            <span class="text-[9px] text-slate-400">Đồng</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(cupDiv);
+            });
+        }
+
+        function openCupModal() {
+            renderCupsGrid();
+            document.getElementById('cupModal').classList.remove('hidden');
+        }
+        function closeCupModal() {
+            document.getElementById('cupModal').classList.add('hidden');
+        }
+
+        function openFriendModal() {
+            document.getElementById('friendModal').classList.remove('hidden');
+        }
+        function closeFriendModal() {
+            document.getElementById('friendModal').classList.add('hidden');
+        }
+        function copyFriendCode() {
+            navigator.clipboard.writeText(gameState.friendCode);
+            showToast("Đã sao chép mã bạn bè!");
+        }
+        function addFriendByCode() {
+            const code = document.getElementById('inputFriendCode').value.trim().toUpperCase();
+            if (!code) return;
+            if (code === gameState.friendCode) {
+                showToast("Bạn không thể kết bạn với chính mình!");
+                return;
+            }
+            if (gameState.friends.includes(code)) {
+                showToast("Đã có bạn bè này trong danh sách!");
+                return;
+            }
+            gameState.friends.push(code);
+            saveState();
+            document.getElementById('inputFriendCode').value = '';
+            showToast(`Đã thêm mã bạn bè ${code} thành công!`);
+        }
+        function renderFriendsList() {
+            const container = document.getElementById('friendsListContainer');
+            container.innerHTML = '';
+            document.getElementById('friendCount').innerText = gameState.friends.length;
+
+            if (gameState.friends.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 text-xs italic">Chưa có bạn bè nào...</p>`;
+                return;
+            }
+
+            gameState.friends.forEach(friendCode => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between bg-slate-900 p-2 rounded-xl border border-slate-800 text-xs";
+                div.innerHTML = `
+                    <span class="font-mono text-cyan-300 font-bold">${friendCode}</span>
+                    <span class="text-emerald-400 font-semibold text-[10px]">Trực Tuyến</span>
+                `;
+                container.appendChild(div);
+            });
+
+            const selectFriend = document.getElementById('inviteSelectFriend');
+            selectFriend.innerHTML = '';
+            if (gameState.friends.length === 0) {
+                selectFriend.innerHTML = `<option value="">Không có bạn bè</option>`;
+            } else {
+                gameState.friends.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f;
+                    opt.innerText = f;
+                    selectFriend.appendChild(opt);
+                });
+            }
+
+            const selectCup = document.getElementById('inviteSelectCup');
+            selectCup.innerHTML = '';
+            gameState.cups.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = `${c.icon} ${c.name}`;
+                selectCup.appendChild(opt);
+            });
+        }
+
+        function openInviteFriendModal() {
+            if (gameState.friends.length === 0) {
+                showToast("Bạn cần kết bạn trước khi rủ bạn bè giành cúp!");
+                openFriendModal();
+                return;
+            }
+            document.getElementById('inviteFriendModal').classList.remove('hidden');
+        }
+        function closeInviteFriendModal() {
+            document.getElementById('inviteFriendModal').classList.add('hidden');
+        }
+        function sendCupInviteNotification() {
+            const friendCode = document.getElementById('inviteSelectFriend').value;
+            const cupId = document.getElementById('inviteSelectCup').value;
+            const cupObj = gameState.cups.find(c => c.id === cupId);
+            if (!friendCode || !cupObj) return;
+
+            const logBox = document.getElementById('friendInviteNotificationsLog');
+            if (logBox.querySelector('.italic')) {
+                logBox.innerHTML = '';
+            }
+
+            const p = document.createElement('p');
+            p.className = "text-cyan-300 font-mono text-[11px]";
+            p.innerText = `[${new Date().toLocaleTimeString()}] Đã gửi lời mời rủ bạn ${friendCode} tranh tài giải ${cupObj.name}!`;
+            logBox.prepend(p);
+
+            closeInviteFriendModal();
+            showToast(`Đã gửi lời mời thành công đến bạn ${friendCode}!`);
+        }
+
+        function openFriendlyMatchModal() {
+            const filledCount = Object.values(gameState.squad).filter(c => c !== null).length;
+            if (filledCount < 11) {
+                showToast("Bạn cần xếp đủ 11 cầu thủ trên sân trước khi đá giao hữu!");
+                return;
+            }
+            document.getElementById('friendlyMatchModal').classList.remove('hidden');
+        }
+        function closeFriendlyMatchModal() {
+            document.getElementById('friendlyMatchModal').classList.add('hidden');
+        }
+
+        function startFriendlyMatch() {
+            closeFriendlyMatchModal();
+            
+            const filledCount = Object.values(gameState.squad).filter(c => c !== null).length;
+            if (filledCount < 11) {
+                showToast("Bạn chưa xếp đủ 11 cầu thủ trên sân!");
+                return;
+            }
+
+            let myTotalRating = 0;
+            const starting11 = [];
+            Object.keys(gameState.squad).forEach(pos => {
+                const card = gameState.squad[pos];
+                myTotalRating += card.rating;
+                starting11.push(card);
+            });
+
+            const oppRating = Math.floor(myTotalRating + (Math.random() * 20 - 10));
+            const oppName = "CLB Khách Mời " + ['Real', 'Barca', 'Bayern', 'PSG', 'Milan'][Math.floor(Math.random()*5)];
+
+            currentTournament = {
+                cupId: null,
+                roundIndex: 0,
+                opponentTeamName: oppName,
+                opponentRating: oppRating,
+                myStarting11: starting11,
+                timerInterval: null,
+                matchTimeSeconds: 0,
+                matchPhase: 'H1',
+                myScore: 0,
+                oppScore: 0,
+                yellowCards: 0,
+                redCards: 0
+            };
+
+            document.getElementById('cupSelectionArea').classList.add('hidden');
+            document.getElementById('matchArenaBox').classList.remove('hidden');
+
+            document.getElementById('matchMyClubName').innerText = gameState.clubName;
+            document.getElementById('matchMyRating').innerText = myTotalRating;
+            document.getElementById('matchOppName').innerText = oppName;
+            document.getElementById('matchOppRating').innerText = oppRating;
+
+            const myLogoImg = document.getElementById('matchMyLogoImg');
+            const myLogoFallback = document.getElementById('matchMyLogoFallback');
+            if (gameState.clubLogo) {
+                myLogoImg.src = gameState.clubLogo;
+                myLogoImg.classList.remove('hidden');
+                myLogoFallback.classList.add('hidden');
+            } else {
+                myLogoImg.classList.add('hidden');
+                myLogoFallback.classList.remove('hidden');
+            }
+
+            document.getElementById('matchRoundTitleLabel').innerText = "Trận Đấu Giao Hữu (90 Giây + Hiệp Phụ)";
+            document.getElementById('matchCurrentRoundBadge').innerText = "Đang diễn ra";
+            document.getElementById('nextRoundBtn').classList.add('hidden');
+            document.getElementById('finishMatchBtn').classList.add('hidden');
+
+            const listEl = document.getElementById('matchStarting11List');
+            listEl.innerHTML = '';
+            starting11.forEach(c => {
+                const div = document.createElement('div');
+                div.className = "flex items-center space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-[11px]";
+                div.innerHTML = `<span class="font-bold text-cyan-400">[${c.pos}]</span> <span class="truncate text-white font-bold">${c.name}</span> <span class="ml-auto text-amber-300">${c.rating}</span>`;
+                listEl.appendChild(div);
+            });
+
+            const commBox = document.getElementById('matchCommentary');
+            commBox.innerHTML = `<p class="text-cyan-400 font-bold">Trọng tài thổi còi bắt đầu trận giao hữu 90 giây! Có bù giờ và hiệp phụ nếu hòa.</p>`;
+
+            runMatchSimulation(false);
+        }
+
+        function startTournament() {
+            const filledCount = Object.values(gameState.squad).filter(c => c !== null).length;
+            if (filledCount < 11) {
+                showToast("Bạn bắt buộc phải xếp đủ 11 cầu thủ trên sân mới được đấu Cúp!");
+                return;
+            }
+
+            const cupObj = gameState.cups.find(c => c.id === selectedMatchCupId);
+            const now = Date.now();
+            if (cupObj.status === 'locked' && cupObj.lockedUntil > now) {
+                showToast("Giải Cúp này đang trong thời gian khóa 7 ngày sau trận thua!");
+                return;
+            }
+
+            let myTotalRating = 0;
+            const starting11 = [];
+            Object.keys(gameState.squad).forEach(pos => {
+                const card = gameState.squad[pos];
+                myTotalRating += card.rating;
+                starting11.push(card);
+            });
+
+            currentTournament = {
+                cupId: selectedMatchCupId,
+                roundIndex: 0, // 0: Vòng 16 đội, 1: Tứ kết, 2: Bán kết, 3: Chung kết
+                opponentTeamName: '',
+                opponentRating: 0,
+                myStarting11: starting11,
+                timerInterval: null,
+                matchTimeSeconds: 0,
+                matchPhase: 'H1',
+                myScore: 0,
+                oppScore: 0,
+                yellowCards: 0,
+                redCards: 0
+            };
+
+            document.getElementById('cupSelectionArea').classList.add('hidden');
+            document.getElementById('matchArenaBox').classList.remove('hidden');
+
+            document.getElementById('matchMyClubName').innerText = gameState.clubName;
+            document.getElementById('matchMyRating').innerText = myTotalRating;
+
+            const myLogoImg = document.getElementById('matchMyLogoImg');
+            const myLogoFallback = document.getElementById('matchMyLogoFallback');
+            if (gameState.clubLogo) {
+                myLogoImg.src = gameState.clubLogo;
+                myLogoImg.classList.remove('hidden');
+                myLogoFallback.classList.add('hidden');
+            } else {
+                myLogoImg.classList.add('hidden');
+                myLogoFallback.classList.remove('hidden');
+            }
+
+            const listEl = document.getElementById('matchStarting11List');
+            listEl.innerHTML = '';
+            starting11.forEach(c => {
+                const div = document.createElement('div');
+                div.className = "flex items-center space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-[11px]";
+                div.innerHTML = `<span class="font-bold text-cyan-400">[${c.pos}]</span> <span class="truncate text-white font-bold">${c.name}</span> <span class="ml-auto text-amber-300">${c.rating}</span>`;
+                listEl.appendChild(div);
+            });
+
+            setupTournamentRound();
+        }
+
+        function setupTournamentRound() {
+            const roundNames = ["Vòng 16 Đội", "Tứ Kết", "Bán Kết", "Chung Kết"];
+            const currentRoundName = roundNames[currentTournament.roundIndex];
+
+            let myTotalRating = 0;
+            currentTournament.myStarting11.forEach(c => myTotalRating += c.rating);
+
+            // Opponent rating scales up per round
+            let oppRating = Math.floor(myTotalRating + (Math.random() * 16 - 8) + (currentTournament.roundIndex * 3));
+            const oppName = `FC Đối Thủ (${currentRoundName})`;
+
+            currentTournament.opponentTeamName = oppName;
+            currentTournament.opponentRating = oppRating;
+            currentTournament.myScore = 0;
+            currentTournament.oppScore = 0;
+            currentTournament.matchTimeSeconds = 0;
+            currentTournament.matchPhase = 'H1';
+            currentTournament.yellowCards = 0;
+            currentTournament.redCards = 0;
+
+            document.getElementById('matchOppName').innerText = oppName;
+            document.getElementById('matchOppRating').innerText = oppRating;
+            document.getElementById('matchScoreMy').innerText = '0';
+            document.getElementById('matchScoreOpp').innerText = '0';
+            document.getElementById('matchRoundTitleLabel').innerText = `${roundNames[currentTournament.roundIndex]} (90 giây + Hiệp Phụ)`;
+            document.getElementById('matchCurrentRoundBadge').innerText = "Đang diễn ra";
+            document.getElementById('nextRoundBtn').classList.add('hidden');
+            document.getElementById('finishMatchBtn').classList.add('hidden');
+
+            const commBox = document.getElementById('matchCommentary');
+            commBox.innerHTML = `<p class="text-cyan-400 font-bold">Trọng tài thổi còi bắt đầu ${currentRoundName}! Trận đấu kéo dài 90 giây chính thức bắt đầu...</p>`;
+
+            runMatchSimulation(true);
+        }
+
+        function runMatchSimulation(isTournament) {
+            let myTotalRating = 0;
+            currentTournament.myStarting11.forEach(c => myTotalRating += c.rating);
+            const oppRating = currentTournament.opponentRating;
+            const ratingDiff = myTotalRating - oppRating;
+
+            // 90 seconds total match time simulation -> 1 tick every 300ms = 300 ticks for 90 seconds
+            // Let's make ticks represent match minutes. 90 mins in 90 seconds = 1 second of real time = 1 match minute.
+            // Total match duration = 90 seconds real-time for normal time.
+            let tickCount = 0;
+            
+            clearInterval(currentTournament.timerInterval);
+            currentTournament.timerInterval = setInterval(() => {
+                tickCount++;
+                currentTournament.matchTimeSeconds++;
+
+                let matchMinute = Math.min(90, Math.floor(currentTournament.matchTimeSeconds));
+                
+                // Format time display
+                let timeStr = `${matchMinute < 10 ? '0' + matchMinute : matchMinute}:00`;
+                if (matchMinute <= 45) {
+                    currentTournament.matchPhase = 'H1';
+                    document.getElementById('matchTimeDisplay').innerText = `${timeStr} (H1)`;
+                } else if (matchMinute < 90) {
+                    currentTournament.matchPhase = 'H2';
+                    document.getElementById('matchTimeDisplay').innerText = `${timeStr} (H2)`;
+                } else {
+                    // 90 minutes reached
+                    clearInterval(currentTournament.timerInterval);
+                    evaluateMatchResult(isTournament);
+                    return;
+                }
+
+                // Random events (goals, yellow/red cards)
+                const eventChance = Math.random();
+                const commBox = document.getElementById('matchCommentary');
+
+                if (eventChance < 0.12) {
+                    // Goal event
+                    const isMyTeamGoal = Math.random() < (0.5 + ratingDiff * 0.02);
+                    if (isMyTeamGoal) {
+                        currentTournament.myScore++;
+                        document.getElementById('matchScoreMy').innerText = currentTournament.myScore;
+                        const scorer = currentTournament.myStarting11[Math.floor(Math.random() * currentTournament.myStarting11.length)];
+                        commBox.innerHTML += `<p class="text-emerald-400 font-bold">[${matchMinute}'] VÀOOO! Cầu thủ ${scorer.name} ghi bàn mở tỷ số cho đội nhà!</p>`;
+                    } else {
+                        currentTournament.oppScore++;
+                        document.getElementById('matchScoreOpp').innerText = currentTournament.oppScore;
+                        commBox.innerHTML += `<p class="text-rose-400 font-bold">[${matchMinute}'] Bàn thắng! Đối thủ đã tận dụng cơ hội ghi bàn.</p>`;
+                    }
+                    commBox.scrollTop = commBox.scrollHeight;
+                } else if (eventChance < 0.18) {
+                    // Yellow/Red Card event
+                    const isMyTeamCard = Math.random() < 0.5;
+                    const cardType = Math.random() < 0.75 ? 'Thẻ Vàng' : 'Thẻ Đỏ';
+                    const targetPlayer = currentTournament.myStarting11[Math.floor(Math.random() * currentTournament.myStarting11.length)];
+                    
+                    if (cardType === 'Thẻ Vàng') {
+                        currentTournament.yellowCards++;
+                        commBox.innerHTML += `<p class="text-amber-400">[${matchMinute}'] ${isMyTeamCard ? targetPlayer.name : 'Cầu thủ đối phương'} nhận ${cardType} từ trọng tài sau pha phạm lỗi.</p>`;
+                    } else {
+                        currentTournament.redCards++;
+                        commBox.innerHTML += `<p class="text-rose-500 font-bold">[${matchMinute}'] TRỌNG TÀI RÚT THẺ ĐỎ! ${isMyTeamCard ? targetPlayer.name : 'Cầu thủ đối phương'} bị truất quyền thi đấu!</p>`;
+                    }
+                    commBox.scrollTop = commBox.scrollHeight;
+                } else if (eventChance < 0.25) {
+                    commBox.innerHTML += `<p class="text-slate-400">[${matchMinute}'] Trận đấu đang diễn ra hấp dẫn với những pha tranh chấp quyết liệt ở khu vực giữa sân.</p>`;
+                    commBox.scrollTop = commBox.scrollHeight;
+                }
+
+            }, 1000); // 1 second real time per minute = 90 seconds total for normal time
+        }
+
+        function evaluateMatchResult(isTournament) {
+            let myTotalRating = 0;
+            currentTournament.myStarting11.forEach(c => myTotalRating += c.rating);
+            const ratingDiff = myTotalRating - currentTournament.opponentRating;
+
+            // If score is tied after 90 mins, add extra time & penalties simulation
+            if (currentTournament.myScore === currentTournament.oppScore) {
+                const commBox = document.getElementById('matchCommentary');
+                commBox.innerHTML += `<p class="text-amber-300 font-bold">Hết 90 phút thi đấu chính thức với tỷ số hòa! Hai đội bước vào Hiệp Phụ & Loạt Sút Luân Lưu 11m...</p>`;
+                
+                // Extra time / penalty shootout resolution based on rating
+                if (Math.random() < (0.55 + ratingDiff * 0.03)) {
+                    currentTournament.myScore += 1;
+                } else {
+                    currentTournament.oppScore += 1;
+                }
+                document.getElementById('matchScoreMy').innerText = currentTournament.myScore;
+                document.getElementById('matchScoreOpp').innerText = currentTournament.oppScore;
+            }
+
+            const isWin = currentTournament.myScore > currentTournament.oppScore;
+            const commBox = document.getElementById('matchCommentary');
+
+            if (!isTournament) {
+                // Friendly match
+                if (isWin) {
+                    gameState.coins += 1500;
+                    commBox.innerHTML += `<p class="text-emerald-400 font-bold">🎉 KẾT THÚC TRẬN GIAO HỮU: Thắng lợi thuộc về đội nhà! Nhận +1,500 Xu thưởng.</p>`;
+                } else {
+                    commBox.innerHTML += `<p class="text-rose-400 font-bold">Trận đấu giao hữu kết thúc với phần thắng nghiêng về đối thủ.</p>`;
+                }
+                saveState();
+                document.getElementById('finishMatchBtn').classList.remove('hidden');
+                document.getElementById('matchCurrentRoundBadge').innerText = "Đã kết thúc giao hữu";
+                return;
+            }
+
+            // Tournament Match
+            if (isWin) {
+                if (currentTournament.roundIndex < 3) {
+                    // Advance to next round
+                    const roundNames = ["Vòng 16 Đội", "Tứ Kết", "Bán Kết", "Chung Kết"];
+                    commBox.innerHTML += `<p class="text-cyan-300 font-bold">🎉 THẮNG TRẬN! Đội bóng đã vượt qua ${roundNames[currentTournament.roundIndex]} để tiến vào vòng tiếp theo!</p>`;
+                    commBox.scrollTop = commBox.scrollHeight;
+                    document.getElementById('nextRoundBtn').classList.remove('hidden');
+                    document.getElementById('matchCurrentRoundBadge').innerText = "Thắng vòng này";
+                } else {
+                    // Won the Championship (Gold Cup)
+                    const cupObj = gameState.cups.find(c => c.id === currentTournament.cupId);
+                    cupObj.goldCount = (cupObj.goldCount || 0) + 1;
+                    cupObj.status = 'gold';
+                    gameState.coins += 10000;
+                    saveState();
+
+                    commBox.innerHTML += `<p class="text-amber-300 font-black text-sm">🏆 VÔ ĐỊCH GIẢI CÚP! Đội bóng đã giành Cúp Vàng ${cupObj.name} và nhận +10,000 Xu thưởng!</p>`;
+                    commBox.scrollTop = commBox.scrollHeight;
+                    document.getElementById('finishMatchBtn').classList.remove('hidden');
+                    document.getElementById('matchCurrentRoundBadge').innerText = "VÔ ĐỊCH CÚP VÀNG";
+                }
+            } else {
+                // Lost the match
+                const cupObj = gameState.cups.find(c => c.id === currentTournament.cupId);
+                
+                if (currentTournament.roundIndex === 2) {
+                    // Lost in Semifinals -> Bronze Cup
+                    cupObj.bronzeCount = (cupObj.bronzeCount || 0) + 1;
+                    if (cupObj.status !== 'gold' && cupObj.status !== 'silver') cupObj.status = 'bronze';
+                    commBox.innerHTML += `<p class="text-amber-600 font-bold">🥉 Thua ở Bán Kết! Đội bóng nhận Cúp Đồng danh dự.</p>`;
+                } else if (currentTournament.roundIndex === 3) {
+                    // Lost in Finals -> Silver Cup
+                    cupObj.silverCount = (cupObj.silverCount || 0) + 1;
+                    if (cupObj.status !== 'gold') cupObj.status = 'silver';
+                    commBox.innerHTML += `<p class="text-slate-300 font-bold">🥈 Về nhì ở Chung Kết! Đội bóng nhận Cúp Bạc.</p>`;
+                } else {
+                    // Lost early -> Lock cup for 7 days (168 hours)
+                    cupObj.status = 'locked';
+                    cupObj.lockedUntil = Date.now() + (7 * 24 * 60 * 60 * 1000);
+                    commBox.innerHTML += `<p class="text-rose-400 font-bold">❌ Đã thua ở vòng này! Giải Cúp này đã bị khóa đúng 1 tuần (7 ngày) theo quy định.</p>`;
+                }
+
+                saveState();
+                document.getElementById('finishMatchBtn').classList.remove('hidden');
+                document.getElementById('matchCurrentRoundBadge').innerText = "Bị loại / Kết thúc";
+            }
+        }
+
+        function proceedNextTournamentRound() {
+            currentTournament.roundIndex++;
+            setupTournamentRound();
+        }
+
+        function closeMatchResult() {
+            clearInterval(currentTournament.timerInterval);
+            document.getElementById('matchArenaBox').classList.add('hidden');
+            document.getElementById('cupSelectionArea').classList.remove('hidden');
+            updateUI();
+        }
+    </script>
+</body>
+</html>
